@@ -69,11 +69,9 @@ def upload_to_youtube(title, description):
     scopes = ["https://www.googleapis.com/auth/youtube.upload"]
     creds = None
 
-    # Load existing token if available
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', scopes)
 
-    # If no valid credentials, handle login
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -81,10 +79,9 @@ def upload_to_youtube(title, description):
             flow = InstalledAppFlow.from_client_secrets_file("client_secret.json", scopes)
             creds = flow.run_local_server(port=0)
         
-        # Save the token for next time
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-            print("💾 Session saved! You won't need to log in again.")
+            print("💾 Session saved!")
 
     youtube = build("youtube", "v3", credentials=creds)
 
@@ -92,7 +89,7 @@ def upload_to_youtube(title, description):
         part="snippet,status",
         body={
             "snippet": {
-                "title": f"{title} #shorts",
+                "title": f"{title} #shorts #tamil",
                 "description": description,
                 "categoryId": "28"
             },
@@ -103,17 +100,18 @@ def upload_to_youtube(title, description):
     request.execute()
     print("✅ SUCCESS! Video is LIVE.")
 
-# --- 5. THE OPTIMIZED BRAIN ---
+# --- 5. THE TAMIL OPTIMIZED BRAIN ---
 def run_automation():
-    print("🤖 Generating content (Quota-Saving Mode)...")
+    print("🤖 Generating Tamil content (Quota-Saving Mode)...")
     
-    # Combined prompt to use only 1 request instead of 3
+    # Updated prompt for Tamil language and 60-second timing
     combined_prompt = (
         "1. Identify the top IT industry news from the last 24h. "
-        "2. Write a professional 140-word script for a 60s video. "
-        "3. Provide ONE search keyword for a tech background video. "
-        "4. Provide a 5-word catchy title. "
-        "Format exactly as: \nSCRIPT: [text]\nKEYWORD: [word]\nTITLE: [title]"
+        "2. Write a professional and engaging news script in TAMIL language. "
+        "3. The script must be roughly 100-110 Tamil words to fit a 60-second video. "
+        "4. Provide ONE English search keyword for a tech background video. "
+        "5. Provide a 5-word English catchy title for SEO. "
+        "Format exactly as: \nSCRIPT: [Tamil text]\nKEYWORD: [English word]\nTITLE: [English title]"
     )
     
     try:
@@ -125,21 +123,23 @@ def run_automation():
         keyword = raw_output.split("KEYWORD:")[1].split("TITLE:")[0].strip().replace('"', '')
         final_title = raw_output.split("TITLE:")[1].strip().split('\n')[0]
         
-        print(f"📌 Title: {final_title}")
+        print(f"📌 Tamil Script Generated. English Title: {final_title}")
         
-        # Audio
-        gTTS(text=script, lang='en', slow=False).save("voiceover.mp3")
+        # Audio - Updated language code to 'ta' for Tamil
+        print("🎙️ Generating Tamil Voiceover...")
+        gTTS(text=script, lang='ta', slow=False).save("voiceover.mp3")
         
         # Visuals
         v_file = get_pexels_video(keyword)
         if v_file:
             assemble_video("voiceover.mp3", v_file)
             
+            # Tamil Description
             desc = (
-                f"Daily Tech Update: {final_title}\n\n"
+                f"நித்ய தொழில்நுட்ப செய்திகள் (Daily Tech Update): {final_title}\n\n"
                 "🚀 For Automation Solutions: rktechflowsolutions@gmail.com\n"
                 "Follow @rktechflowsolutions on Instagram.\n"
-                "#itnews #automation #tech #shorts"
+                "#itnews #tamil #technology #automation #shorts"
             )
             upload_to_youtube(final_title, desc)
             
