@@ -1,0 +1,8 @@
+.env
+token.json
+client_secret.json
+__pycache__/
+voiceover.mp3
+background.mp4
+final_video.mp4
+temp-audio.m4a
