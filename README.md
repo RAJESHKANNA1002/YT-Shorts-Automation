@@ -1,21 +1,21 @@
-# 🚀 RK TechFlow AI Automator
+# 🚀 RK TechFlow AI Automator (Tamil Edition)
 
-An autonomous HD video production engine that creates and uploads YouTube Shorts daily.
+An autonomous HD video production engine that creates and uploads Tamil-language IT news Shorts daily.
 
 ## 🛠️ Tech Stack
-- **AI:** Google Gemini 2.5 Flash
+- **AI:** Google Gemini 2.5 Flash (Localized Prompting)
 - **Visuals:** Pexels API
-- **Audio:** gTTS
-- **Processing:** MoviePy
+- **Audio:** gTTS (Tamil Voice Engine - 'ta')
+- **Processing:** MoviePy (High Bitrate 1080p)
 
 ## 📋 Features
-- **Auto-News:** Fetches the latest IT industry updates.
-- **Auto-Edit:** Loops and stitches 1080p HD video to exactly 60 seconds.
-- **Auto-Upload:** Uses OAuth2 tokens for hands-free YouTube publishing.
-- **High Quality:** Encoded at 6000k bitrate with clear 192k audio.
+- **Tamil Localization:** Automated scripts and voiceovers in Tamil.
+- **Quota-Saver:** Optimized to 1 AI request per video to fit Free Tier limits.
+- **Auto-Loop:** Handles short stock footage by looping to a perfect 60s.
+- **Auto-Upload:** Hands-free publishing via YouTube Data API.
 
 ## ⚙️ Setup
 1. Clone the repo.
 2. Create a `.env` file with `GEMINI_API_KEY` and `PEXELS_API_KEY`.
-3. Add your `client_secret.json` from Google Cloud Console.
+3. Add your `client_secret.json`.
 4. Run `python app.py`.
