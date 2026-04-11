@@ -2,12 +2,16 @@ name: RK TechFlow Daily Automation
 
 on:
   schedule:
-    - cron: '30 3 * * *'  # Runs at 9:00 AM IST (3:30 AM UTC)
-  workflow_dispatch:      # Allows you to run it manually for testing
+    - cron: '30 3 * * *'  # Runs at 9:00 AM IST
+  workflow_dispatch:      # Allows manual testing
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # This line forces GitHub to use the latest Node.js engine and removes the warnings
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout code
