@@ -19,3 +19,6 @@ An autonomous HD video production engine that creates and uploads Tamil-language
 2. Create a `.env` file with `GEMINI_API_KEY` and `PEXELS_API_KEY`.
 3. Add your `client_secret.json`.
 4. Run `python app.py`.
+
+## Automation   
+- This will automatically runs using github
