@@ -40,17 +40,19 @@ def get_pexels_video(query):
         print(f"❌ Pexels Error: {e}")
         return None
 
-# --- 3. HIGH-QUALITY 60s ASSEMBLY ---
+# --- 3. ASSEMBLY (Locked to 58s for Shorts Shelf) ---
 def assemble_video(audio_path, video_path):
-    print("🎬 Stitching HD video (60s)...")
-    audio = AudioFileClip(audio_path).with_duration(60)
+    TARGET_DURATION = 58.0 
+    print(f"🎬 Stitching HD video ({TARGET_DURATION}s)...")
+    
+    audio = AudioFileClip(audio_path).with_duration(TARGET_DURATION)
     video = VideoFileClip(video_path).without_audio()
 
-    if video.duration < 60:
-        loops_needed = int(60 / video.duration) + 1
+    if video.duration < TARGET_DURATION:
+        loops_needed = int(TARGET_DURATION / video.duration) + 1
         video = concatenate_videoclips([video] * loops_needed)
     
-    video = video.subclipped(0, 60).resized(height=1920)
+    video = video.subclipped(0, TARGET_DURATION).resized(height=1920)
     final = video.with_audio(audio)
     
     final.write_videofile(
@@ -100,41 +102,58 @@ def upload_to_youtube(title, description):
     request.execute()
     print("✅ SUCCESS! Video is LIVE.")
 
-# --- 5. THE TAMIL OPTIMIZED BRAIN ---
+# --- 5. THE TAMIL OPTIMIZED BRAIN (With 503 Retry Logic) ---
 def run_automation():
-    print("🤖 Generating Tamil content (Quota-Saving Mode)...")
+    print("🤖 Generating Tamil content...")
     
-    # Updated prompt for Tamil language and 60-second timing
     combined_prompt = (
         "1. Identify the top IT industry news from the last 24h. "
         "2. Write a professional and engaging news script in TAMIL language. "
-        "3. The script must be roughly 100-110 Tamil words to fit a 60-second video. "
+        "3. The script must be roughly 90-100 Tamil words to fit a 58-second video. "
         "4. Provide ONE English search keyword for a tech background video. "
         "5. Provide a 5-word English catchy title for SEO. "
         "Format exactly as: \nSCRIPT: [Tamil text]\nKEYWORD: [English word]\nTITLE: [English title]"
     )
     
+    res_text = ""
+    # --- RETRY LOOP FOR SERVER BUSY ERRORS ---
+    for attempt in range(3):
+        try:
+            res = client.models.generate_content(model="gemini-2.0-flash", contents=combined_prompt)
+            res_text = res.text
+            # Clean common AI formatting symbols that break parsing
+            res_text = res_text.replace('*', '').replace('#', '') 
+            break
+        except Exception as e:
+            if "503" in str(e) or "overloaded" in str(e).lower():
+                print(f"⚠️ Google Servers busy. Retrying in 30s... (Attempt {attempt+1}/3)")
+                time.sleep(30)
+            elif "429" in str(e):
+                print("🚨 QUOTA ALERT: Free Tier exhausted.")
+                return
+            else:
+                print(f"🚨 Generation Error: {e}")
+                return
+
+    if not res_text or "SCRIPT:" not in res_text:
+        print("❌ Could not get a valid response from AI.")
+        return
+
     try:
-        res = client.models.generate_content(model="gemini-2.5-flash", contents=combined_prompt)
-        raw_output = res.text
+        # Parsing the data
+        script = res_text.split("SCRIPT:")[1].split("KEYWORD:")[0].strip()
+        keyword = res_text.split("KEYWORD:")[1].split("TITLE:")[0].strip().replace('"', '')
+        final_title = res_text.split("TITLE:")[1].strip().split('\n')[0]
         
-        # Parsing the combined data
-        script = raw_output.split("SCRIPT:")[1].split("KEYWORD:")[0].strip()
-        keyword = raw_output.split("KEYWORD:")[1].split("TITLE:")[0].strip().replace('"', '')
-        final_title = raw_output.split("TITLE:")[1].strip().split('\n')[0]
+        print(f"📌 Tamil Script Generated: {final_title}")
         
-        print(f"📌 Tamil Script Generated. English Title: {final_title}")
-        
-        # Audio - Updated language code to 'ta' for Tamil
         print("🎙️ Generating Tamil Voiceover...")
         gTTS(text=script, lang='ta', slow=False).save("voiceover.mp3")
         
-        # Visuals
         v_file = get_pexels_video(keyword)
         if v_file:
             assemble_video("voiceover.mp3", v_file)
             
-            # Tamil Description
             desc = (
                 f"நித்ய தொழில்நுட்ப செய்திகள் (Daily Tech Update): {final_title}\n\n"
                 "🚀 For Automation Solutions: rktechflowsolutions@gmail.com\n"
@@ -144,10 +163,7 @@ def run_automation():
             upload_to_youtube(final_title, desc)
             
     except Exception as e:
-        if "429" in str(e):
-            print("🚨 QUOTA ALERT: Free Tier exhausted. Wait for reset.")
-        else:
-            print(f"🚨 Pipeline Error: {e}")
+        print(f"🚨 Pipeline Error during parsing: {e}")
 
 if __name__ == "__main__":
     run_automation()
