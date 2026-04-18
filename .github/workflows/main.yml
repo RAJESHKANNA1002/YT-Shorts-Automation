@@ -25,7 +25,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-genai gtts moviepy requests python-dotenv google-auth-oauthlib google-api-python-client
+          # Added 'groq' to the list below
+          pip install groq gtts moviepy requests python-dotenv google-auth-oauthlib google-api-python-client
 
       - name: Install FFmpeg
         run: sudo apt-get install -y ffmpeg
